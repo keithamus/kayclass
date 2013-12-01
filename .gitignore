@@ -1,0 +1,154 @@
+# OS generated files #
+######################
+# OSX
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+._*
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Packages #
+############
+*.7z
+*.jar
+*.rar
+*.zip
+*.gz
+*.bzip
+*.bz2
+*.xz
+*.lzma
+*.cab
+*.iso
+*.tar
+
+# Package Management #
+######################
+*.dmg
+*.xpi
+*.gem
+*.egg
+*.deb
+*.rpm
+*.msi
+*.msm
+*.msp
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Common Backup Files #
+#######################
+*~
+*.bak
+
+# Cross Compiler/Language/CLI artifacts #
+#########################################
+# Node
+lib-cov
+node_modules
+npm-debug.log
+# Misc
+*.pid
+*.seed
+*.csv
+*.dat
+*.out
+
+# Other VCS artifacts #
+#######################
+# CVS
+/CVS/*
+*/CVS/*
+.cvsignore
+*/.cvsignore
+# Mercurial
+/.hg/*
+*/.hg/*
+.hgignore
+# SVN
+.svn
+
+# Common Design files or Secrets files #
+########################################
+*.ai
+*.psd
+
+# Common secrets files #
+########################
+*.pem
+*.pub
+
+# Common Editors #
+##################
+# Dreamweaver
+_notes
+dwsync.xml
+# Eclipse
+*.pydevproject
+.metadata
+.gradle
+*.tmp
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.externalToolBuilders/
+*.launch
+.cproject
+.buildpath
+.texlipse
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+*_flymake.*
+/eshell/history
+/eshell/lastdir
+/elpa/
+# Espresso
+*.esproj
+# JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+.idea_modules/
+# Sublime
+*.sublime-*
+# TextMate
+*.tmproj
+*.tmproject
+tmtags
+# vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
