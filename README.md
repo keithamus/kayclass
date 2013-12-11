@@ -6,7 +6,7 @@
 > For all details and documentation:
 > http://github.com/kayframework/k-doc
 
-K-Class is a simple Class implementation inspired by Backbon, but using
+K-Class is a simple Class implementation inspired by Backbone, but using
 ES5 features. This means it copies property values such as enumerability and
 writability across classes. It also has proper prototypal inheritence using
 Object.create.
