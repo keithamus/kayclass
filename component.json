@@ -1,0 +1,16 @@
+{
+    "name": "K-Class",
+    "version": "0.1.0",
+    "description": "A Class implementation for JavaScript",
+    "main": "index.js",
+    "keywords": [
+        "class",
+        "prototype",
+        "inheritence",
+        "constructor",
+        "es5",
+        "oop",
+        "object-oriented",
+        "kayframework"
+    ],
+}
