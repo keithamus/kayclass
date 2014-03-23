@@ -1,12 +1,12 @@
 {
-    "name": "k-class",
+    "name": "kayclass",
     "version": "0.1.0",
     "description": "A Class implementation for JavaScript",
-    "homepage": "http://github.com/kay-framework/k-class",
+    "homepage": "http://github.com/kay-framework/kayclass",
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "git://github.com/kay-framework/k-class"
+        "url": "git://github.com/kay-framework/kayclass"
     },
     "scripts": {
         "test": "NODE_ENV=test ./node_modules/.bin/mocha"
