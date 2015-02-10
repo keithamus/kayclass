@@ -1,583 +1,529 @@
+/* jshint newcap:false */
+/* jshint immed:false */
+
 'use strict';
 describe('Class', function () {
 
-    var Class = typeof require === 'undefined' ? window.KClass : require('../index.js'),
-        instance, Extended, fn;
+    var Class = typeof require === 'undefined' ? window.Class : require('../index.js');
 
-    it('can be newed up', function () {
+    describe('given a `name` argument', function () {
 
-        instance = new Class();
+        it('returns an object with an extends method', function () {
 
-        instance
-            .should.be.instanceof(Class);
+            var object = Class('MyClass');
 
-    });
+            object
+                .should.be.an('object');
 
-    describe('extended child', function () {
-
-        beforeEach(function () {
-            Extended = Class.extend({
-                aProperty: true,
-                aFn: function () {}
-            }, {
-                staticProp: true
-            });
-            instance = new Extended();
-        });
-
-        it('is instance is instanceof Extended', function () {
-
-            instance
-                .should.be.instanceof(Extended);
-
-        });
-
-        it('is instance is instanceof Class', function () {
-
-            instance
-                .should.be.instanceof(Class);
-
-        });
-
-        it('has a reference to Class via .super', function () {
-
-            Extended.super
-                .should.equal(Class);
-
-        });
-
-        it('inherits prototype properties', function () {
-
-            instance.on
-                .should.be.a('function')
-                .and.equal(Class.prototype.on);
-
-            instance.once
-                .should.be.a('function')
-                .and.equal(Class.prototype.once);
-
-            instance.off
-                .should.be.a('function')
-                .and.equal(Class.prototype.off);
-
-            instance.emit
-                .should.be.a('function')
-                .and.equal(Class.prototype.emit);
-
-        });
-
-        it('has its own prototype properties', function () {
-
-            Extended.prototype.aProperty
-                .should.equal(true);
-
-            Extended.prototype.aFn
+            object.extends
                 .should.be.a('function');
 
         });
 
-        it('has static properties inherited from Class', function () {
+    });
 
-            Extended.extend
-                .should.equal(Class.extend);
+    describe('given `name`, `prototypeProperties` and `staticProperties` arguments', function () {
 
-        });
+        var Constructor;
 
-        it('has its own static properties', function () {
-
-            Extended.staticProp
-                .should.equal(true);
-
-        });
-
-        it('can override Class prototype properties (e.g `on`)', function () {
-            var onFn = function () {},
-                onceFn = function () {},
-                offFn = function () {},
-                emitFn = function () {};
-
-            Extended = Class.extend({
-                on: onFn,
-                once: onceFn,
-                off: offFn,
-                emit: emitFn,
+        beforeEach(function () {
+            Constructor = Class('MyClass', {
+                fn1: function () {},
+                fn2: function () {}
+            }, {
+                staticFn1: function () {},
+                staticProp: true
             });
+        });
 
-            Extended.prototype.on
-                .should.equal(onFn);
+        it('returns a constructor function', function () {
 
-            (new Extended()).on
-                .should.equal(onFn);
+            Constructor
+                .should.be.a('function');
 
-            Extended.prototype.once
-                .should.equal(onceFn);
-
-            (new Extended()).once
-                .should.equal(onceFn);
-
-            Extended.prototype.off
-                .should.equal(offFn);
-
-            (new Extended()).off
-                .should.equal(offFn);
-
-            Extended.prototype.emit
-                .should.equal(emitFn);
-
-            (new Extended()).emit
-                .should.equal(emitFn);
-
+            (new Constructor())
+                .should.be.an.instanceof(Constructor);
 
         });
 
-        it('can override Class static properties (e.g `extend`)', function () {
-            var extendFn = function () {};
+        it('maps the `name` argument to the constructor function name', function () {
 
-            Extended = Class.extend({}, { extend: extendFn });
-
-            Extended.extend
-                .should.equal(extendFn);
+            Constructor.name
+                .should.equal('MyClass');
 
         });
 
-        it('does not copy over read-only properties', function () {
+        it('copies the prototype methods to the function prototype', function () {
 
-            Extended = Class.extend({ name: 'a', length: 4 });
+            Constructor.prototype.fn1
+                .should.be.a('function');
 
-            Extended.name
-                .should.equal('subClass');
-
-            Extended.length
-                .should.equal(0);
+            Constructor.prototype.fn2
+                .should.be.a('function');
 
         });
 
-        describe('a child inheriting from child (multiple inheritence)', function () {
-            var ExtendedChild;
+        it('only allows functions, setters, and getters on the prototype', function () {
 
-            beforeEach(function () {
-                ExtendedChild = Extended.extend({
-                    aProperty: false,
-                    aFn: function () {}
+            (function () {
+                Class('MyClass', {
+                    set name(name) {
+                        this._name = name;
+                    },
+                    prop1: 1,
+                    get name() {
+                        return this._name;
+                    },
+                    fnValue: function () {}
                 });
-                instance = new ExtendedChild();
-            });
+            }).should
+                .throw('Unexpected property value for `prop1`. Only function, get, or set allowed');
 
-            it('is instance is instanceof ExtendedChild', function () {
-
-                instance
-                    .should.be.instanceof(ExtendedChild);
-
-            });
-
-            it('is instance is instanceof Extended', function () {
-
-                instance
-                    .should.be.instanceof(Extended);
-
-            });
-
-            it('is instance is instanceof Class', function () {
-
-                instance
-                    .should.be.instanceof(Class);
-
-            });
-
-            it('has a reference to Extended via .super', function () {
-
-                ExtendedChild.super
-                    .should.equal(Extended);
-
-            });
-
-            it('has a reference to Class via .super', function () {
-
-                ExtendedChild.super.super
-                    .should.equal(Class);
-
-            });
-
-            it('inherits prototype properties', function () {
-
-                ExtendedChild = Extended.extend();
-                instance = new ExtendedChild();
-
-                instance.on
-                    .should.be.a('function')
-                    .and.equal(Class.prototype.on);
-
-                instance.once
-                    .should.be.a('function')
-                    .and.equal(Class.prototype.once);
-
-                instance.off
-                    .should.be.a('function')
-                    .and.equal(Class.prototype.off);
-
-                instance.emit
-                    .should.be.a('function')
-                    .and.equal(Class.prototype.emit);
-
-                instance.aFn
-                    .should.be.a('function')
-                    .and.equal(Extended.prototype.aFn);
-
-                instance.aProperty
-                    .should.equal(true);
-
-            });
-
-            it('has its own prototype properties, overriding parent', function () {
-
-                ExtendedChild.prototype.aProperty
-                    .should.equal(false);
-
-                ExtendedChild.prototype.aFn
-                    .should.be.a('function');
-
-                ExtendedChild.prototype.aFn
-                    .should.not.equal(Extended.prototype.aFn);
-
-            });
-
-            it('has static properties inherited from Class', function () {
-
-                ExtendedChild.extend
-                    .should.equal(Class.extend);
-
-            });
-
-            it('has static properties inherited from Extended', function () {
-
-                ExtendedChild.staticProp
-                    .should.equal(true);
-
-            });
-
-            it('has its own static properties', function () {
-
-                ExtendedChild.staticProp
-                    .should.equal(true);
-
-            });
-
-            it('can override Class prototype properties (e.g `on`)', function () {
-                var onFn = function () {},
-                    onceFn = function () {},
-                    offFn = function () {},
-                    emitFn = function () {},
-                    aFn = function () {};
-
-                ExtendedChild = Extended.extend({
-                    on: onFn,
-                    once: onceFn,
-                    off: offFn,
-                    emit: emitFn,
-                    aFn: aFn
+            (function () {
+                Class('MyClass', {
+                    set name(name) {
+                        this._name = name;
+                    },
+                    get name() {
+                        return this._name;
+                    }
                 });
+            }).should
+                .not.throw();
 
-                ExtendedChild.prototype.on
-                    .should.equal(onFn);
+            (function () {
+                Class('MyClass', {
+                    get name() {
+                        return this._name;
+                    }
+                });
+            }).should
+                .not.throw();
 
-                (new ExtendedChild()).on
-                    .should.equal(onFn);
+        });
 
-                ExtendedChild.prototype.once
-                    .should.equal(onceFn);
+        it('makes all prototype methods non-enumerable', function () {
 
-                (new ExtendedChild()).once
-                    .should.equal(onceFn);
+            var myClass = new (Class('MyClass', {
+                fn1: function () {},
+                fn2: function () {},
+            }))();
 
-                ExtendedChild.prototype.off
-                    .should.equal(offFn);
+            Object.getPrototypeOf(myClass)
+                .should.eql({});
 
-                (new ExtendedChild()).off
-                    .should.equal(offFn);
+        });
 
-                ExtendedChild.prototype.emit
-                    .should.equal(emitFn);
+        it('copies the static properties to the function constructor', function () {
 
-                (new ExtendedChild()).emit
-                    .should.equal(emitFn);
+            Constructor.staticFn1
+                .should.be.a('function');
 
-                ExtendedChild.prototype.aFn
-                    .should.equal(aFn);
-
-                (new ExtendedChild()).aFn
-                    .should.equal(aFn);
-
-
-            });
-
-            it('can override Class static properties (e.g `extend`)', function () {
-                var extendFn = function () {};
-
-                ExtendedChild = Extended.extend({}, { extend: extendFn });
-
-                ExtendedChild.extend
-                    .should.equal(extendFn);
-
-            });
-
-            it('can be extended in the same way', function () {
-
-                var C = ExtendedChild.extend({});
-                instance = new C();
-
-                instance
-                    .should.be.instanceof(C);
-
-                C.extend
-                    .should.equal(Class.extend);
-
-                instance.on
-                    .should.equal(Class.prototype.on);
-
-                instance.aFn
-                    .should.equal(ExtendedChild.prototype.aFn);
-
-            });
-
+            Constructor.staticProp
+                .should.be.a('boolean');
 
         });
 
     });
 
-    describe('events', function () {
+    describe('given a custom constructor method', function () {
 
-        var listener, context;
+        it('throws an error if its name is different to the constructors name', function () {
+
+            (function () {
+                Class('MyClass', {
+                    constructor : function YourClass() {}
+                });
+            }).should
+                .throw('Constructor name mismatch: YourClass, MyClass');
+
+        });
+
+    });
+
+    describe('without a custom constructor', function () {
+
+        var ParentClass,
+            ChildClass,
+            instance;
 
         beforeEach(function () {
-            instance = new Class();
-            listener = this.spy();
-            context = {};
+
+            ParentClass = Class('ParentClass', {});
+
+            ChildClass = Class('ChildClass').extends(ParentClass, {
+                aFn: function () {}
+            }, {
+                staticFn: function () {},
+                staticProp: true,
+            });
+
+            this.spy(Class, 'super');
+            this.spy(ParentClass.prototype, 'constructor');
+
+            instance = new ChildClass(1, 2);
         });
 
-        describe('.on', function () {
+        it('can be newed up', function () {
 
-            it('is given an event name, and a listener', function () {
-
-                instance.on('eventname', listener)
-                    .should.equal(instance);
-
-                listener
-                    .should.have.not.been.called;
-
-            });
-
-            it('will fire the listener multiple times', function () {
-
-                instance.on('eventname', listener)
-                    .should.equal(instance);
-
-                listener
-                    .should.have.not.been.called;
-
-                instance.emit('eventname')
-                    .should.equal(true);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                instance.emit('eventname')
-                    .should.equal(true);
-
-                listener
-                    .should.have.been.calledTwice;
-
-                instance.emit('eventname')
-                    .should.equal(true);
-
-                listener
-                    .should.have.been.calledThrice;
-
-            });
+            instance
+                .should.be.instanceof(ChildClass);
 
         });
 
-        describe('.emit', function () {
+        it('can have prototype methods', function () {
 
-            it('is given an eventname, where it will fire all attached events', function () {
+            instance.aFn
+                .should.be.a('function')
+                .and.equal(ChildClass.prototype.aFn);
 
-                instance
-                    .on('eventname', listener)
-                    .emit('eventname')
-                        .should.equal(true);
+        });
 
-                listener
-                    .should.have.been.calledOnce;
+        it('can have static properties', function () {
 
+            ChildClass.staticFn
+                .should.be.a('function');
+
+            ChildClass.staticProp
+                .should.be.a('boolean');
+
+        });
+
+        it('calls super with the instance when instantiated', function () {
+
+            Class.super
+                .should.have.been.calledWith(instance);
+
+        });
+
+        it('calls the default constructor method when instantiated', function () {
+
+            Class.super(instance).constructor
+                .should.have.been.called;
+
+        });
+
+        it('maps arguments to its parent constructor', function () {
+
+            Class.super(instance).constructor
+                .should.have.been.calledWith(1, 2);
+
+        });
+
+    });
+
+    describe('with a custom constructor', function () {
+
+        var ParentClass,
+            ChildClass,
+            instance;
+
+        beforeEach(function () {
+
+            ParentClass = Class('ParentClass', {
+                constructor: function ParentClass() {}
             });
 
-            it('will fire all event listeners on that event', function () {
-
-                var anotherListener = this.spy();
-
-                instance
-                    .on('eventname', listener)
-                    .on('eventname', anotherListener)
-                    .emit('eventname')
-                        .should.equal(true);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                anotherListener
-                    .should.have.been.calledOnce;
-
+            ChildClass = Class('ChildClass').extends(ParentClass, {
+                constructor: function ChildClass() {
+                    Class.super(this).constructor();
+                },
+                aFn: function () {}
+            }, {
+                staticFn: function () {},
+                staticProp: true,
             });
 
-            it('will send any arguments provided to the event listeners', function () {
+            this.spy(Class, 'super');
+            this.spy(ParentClass.prototype, 'constructor');
 
-                var anotherListener = this.spy();
+            instance = new ChildClass();
+        });
 
-                instance
-                    .on('eventname', listener)
-                    .on('eventname', anotherListener)
-                    .emit('eventname', 1, 2, 3, context)
-                        .should.equal(true);
+        it('can be newed up', function () {
 
-                listener
-                    .should.have.been.calledOnce
-                    .and.always.have.been.calledWithExactly(1, 2, 3, context);
+            instance
+                .should.be.instanceof(ChildClass);
 
-                anotherListener
-                    .should.have.been.calledOnce
-                    .and.always.have.been.calledWithExactly(1, 2, 3, context);
+        });
 
+        it('can have prototype methods', function () {
+
+            instance.aFn
+                .should.be.a('function')
+                .and.equal(ChildClass.prototype.aFn);
+
+        });
+
+        it('can have static properties', function () {
+
+            ChildClass.staticFn
+                .should.be.a('function');
+
+            ChildClass.staticProp
+                .should.be.a('boolean');
+
+        });
+
+        it('calls super with the instance when instantiated', function () {
+
+            Class.super
+                .should.have.been.calledWith(instance);
+
+        });
+
+        it('calls the custom constructor method when instantiated', function () {
+
+            Class.super(instance).constructor
+                .should.have.been.called;
+
+        });
+
+    });
+
+    describe('.extends() with class and prototype arguments', function () {
+
+        var ExtendableClass,
+            ExtendedChild,
+            instance;
+
+        beforeEach(function () {
+
+            ExtendableClass = Class('ExtendableClass', {
+                aFn: function aFn() {}
+            }, {
+                staticFunc: function () {}
             });
 
-            it('throws Error on "error" event emitted, with no listeners', function () {
+            ExtendedChild = Class('ExtendedChild').extends(ExtendableClass, {
+                bFn: function bFn() {}
+            }, {
+                childStaticFunc: function () {}
+            });
 
-                (fn = function () { instance.emit('error', new Error('Hi!')); })
-                    .should.throw('Hi!');
+            instance = new ExtendedChild();
+        });
 
+        it('returns a child class that can be newed up', function () {
+
+            instance
+                .should.be.an.instanceof(ExtendedChild);
+
+        });
+
+        it('returns an instance of the class argument', function () {
+
+            instance
+                .should.be.an.instanceof(ExtendableClass);
+
+        });
+
+        it('does not return an instance of Class', function () {
+
+            instance
+                .should.not.be.an.instanceof(Class);
+
+        });
+
+        it('extends its prototype from the class argument', function () {
+
+            instance.aFn
+                .should.be.a('function')
+                .and.equal(ExtendableClass.prototype.aFn);
+
+        });
+
+        it('has its own prototype methods', function () {
+
+            instance.bFn
+                .should.be.a('function')
+                .and.equal(ExtendedChild.prototype.bFn);
+
+        });
+
+        it('extends its static properties from the class argument', function () {
+
+            ExtendedChild.staticFunc
+                .should.be.a('function');
+
+        });
+
+
+        it('has its own static properties', function () {
+
+            ExtendedChild.childStaticFunc
+                .should.be.a('function');
+
+        });
+
+        it('creates a reference to the parents\' prototype via Class.super', function () {
+
+            Class.super(instance)
+                .should.equal(ExtendableClass.prototype);
+
+        });
+
+        it('throws a TypeError if not called on a function or null', function () {
+
+            (function () {
+                Class('ExtendedChild').extends(undefined);
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object Undefined] is not a function or null');
+
+            (function () {
+                Class('ExtendedChild').extends({});
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object Object] is not a function or null');
+
+            (function () {
+                Class('ExtendedChild').extends([]);
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object Array] is not a function or null');
+
+            (function () {
+                Class('ExtendedChild').extends(2);
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object Number] is not a function or null');
+
+            (function () {
+                Class('ExtendedChild').extends('');
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object String] is not a function or null');
+
+            (function () {
+                Class('ExtendedChild').extends(instance);
+            }).should.throw(TypeError, 'Class extends value ' +
+                '[object Object] is not a function or null');
+
+        });
+
+    });
+
+    describe('.extends() without a prototype argument', function () {
+
+        var ExtendableClass,
+            ExtendedChild,
+            instance;
+
+        beforeEach(function () {
+
+            ExtendableClass = Class('ExtendableClass', {
+                aFn: function aFn() {}
+            }, {
+                staticFunc: function () {}
+            });
+
+            ExtendedChild = Class('ExtendedChild').extends(ExtendableClass);
+
+            instance = new ExtendedChild();
+        });
+
+        it('returns a child class that can be newed up', function () {
+
+            ExtendedChild
+                .should.be.a('function');
+
+            instance
+                .should.be.an.instanceof(ExtendedChild);
+
+        });
+
+        it('returns an instance of the class argument', function () {
+
+            instance
+                .should.be.an.instanceof(ExtendableClass);
+
+        });
+
+        it('does not return an instance of Class', function () {
+
+            instance
+                .should.not.be.an.instanceof(Class);
+
+        });
+
+        it('extends its prototype from the class argument', function () {
+
+            instance.aFn
+                .should.be.a('function')
+                .and.equal(ExtendableClass.prototype.aFn);
+
+        });
+
+        it('extends its static properties from the class argument', function () {
+
+            ExtendedChild.staticFunc
+                .should.be.a('function');
+
+        });
+
+        it('creates a reference to the class arguments\'s prototype via Class.super', function () {
+
+            Class.super(instance)
+                .should.equal(ExtendableClass.prototype);
+
+        });
+
+    });
+
+    describe('.super()', function () {
+
+        var ExtendableClass,
+            ExtendedChild;
+
+        beforeEach(function () {
+
+            ExtendableClass = Class('ExtendableClass', {
+                aFn: function aFn() {}
+            }, {
+                staticFunc: function () {}
+            });
+
+            ExtendedChild = Class('ExtendedChild').extends(ExtendableClass, {
+                bFn: function bFn() {}
+            }, {
+                childStaticFunc: function () {}
             });
 
         });
 
-        describe('.off', function () {
+        it('must be called with an instance of a Class', function () {
 
-            it('is given an event name, and a listener', function () {
+            var instance = new ExtendedChild();
 
-                instance.off('eventname', listener)
-                    .should.equal(instance);
-
-                listener
-                    .should.have.not.been.called;
-
-            });
-
-            it('will remove a bound (.on\'d) event listener from the event name', function () {
-
-                instance
-                    .on('eventname', listener)
-                    .emit('eventname')
-                        .should.equal(true);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                instance
-                    .off('eventname', listener)
-                    .emit('eventname')
-                        .should.equal(false);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                instance.emit('eventname')
-                    .should.equal(false);
-
-                listener
-                    .should.have.been.calledOnce;
-
-            });
-
-            it('will remove all listeners on an event if only given a name', function () {
-
-                var anotherListener = this.spy();
-
-                instance
-                    .on('eventname', listener, context)
-                    .on('eventname', anotherListener)
-                    .emit('eventname')
-                        .should.equal(true);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                anotherListener
-                    .should.have.been.calledOnce;
-
-                instance
-                    .off('eventname')
-                    .emit('eventname');
-
-                listener
-                    .should.have.been.calledOnce;
-
-                anotherListener
-                    .should.have.been.calledOnce;
-
-                instance
-                    .emit('eventname');
-
-                listener
-                    .should.have.been.calledOnce;
-
-                anotherListener
-                    .should.have.been.calledOnce;
-
-            });
+            Class.super(instance).constructor
+                .should.equal(ExtendableClass);
 
         });
 
-        describe('.once', function () {
+        it('cannot be called with a Class', function () {
 
-            it('is given an event name, and a listener', function () {
-
-                instance.once('eventname', listener)
-                    .should.equal(instance);
-
-                listener
-                    .should.have.not.been.called;
-
-            });
-
-            it('will fire the listener only once, and then will detatch itself', function () {
-
-                instance.once('eventname', listener)
-                    .should.equal(instance);
-
-                listener
-                    .should.have.not.been.called;
-
-                instance.emit('eventname')
-                    .should.equal(true);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                instance.emit('eventname')
-                    .should.equal(false);
-
-                listener
-                    .should.have.been.calledOnce;
-
-                instance.emit('eventname')
-                    .should.equal(false);
-
-                listener
-                    .should.have.been.calledOnce;
-
-            });
-
+            (function () {
+                Class.super(ExtendedChild);
+            }).should.throw(TypeError, 'Class.super must be called with an instance');
 
         });
-
 
     });
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,203 +1,123 @@
+/* jshint evil:true */
+
 /*
  * # KayClass
  *
- * > Copyright © 2013 Kay Framework Team
+ * > Copyright © Kay Framework Team
  * > KayClass may be freely distributed under the MIT license.
  * > For all details and documentation:
- * > http://github.com/kayframework/kayClass
- *
- * KayClass is a simple Class implementation inspired by Backbone, but using
- * ES5 features. This means it copies property values such as enumerability and
- * writability across classes. It also has proper prototypal inheritence using
- * Object.create.
- *
- * When used in Node.JS it will extend from Node's EventEmitter, allowing you to
- * have events baked into every class you create. When in the browser it uses
- * a port of Node's EventEmitter, giving you the same flexibility on the
- * frontend, as in the backend.
- *
- * It is more comprehensive than a simple `util.inherits()` in Node.JS, as it
- * allows you to cleanly express additional prototype & static properties, and
- * also inherits static properties from the parent class. You also get a `super`
- * static property on your class, which references the parent, allowing you to
- * programatically call the parent methods without referincing it directly.
- *
- * ### Usage
- *
- * Note:
- * When running in Node.JS, KayClass extends from
- * [Node.JS' Eventemitter](http://nodejs.org/api/events.html), when in the
- * browser, it has a functionality identical browser port of EventEmitter, see
- * [eventemitter-browser.js](./eventemitter-browser.js).
- *
- *
+ * > http://github.com/kay-framework/kayclass
  */
 (function () {
     'use strict';
-    // Shortcuts for Object.* methods, used frequently.
-    var prop = Object.defineProperty,
-        getPropDesc = Object.getOwnPropertyDescriptor,
-        global = (typeof window !== 'undefined' ? window : global),
-        EventEmitter,
-        KayClass;
 
-    // Try to include EventEmitter the Node.JS way, falling back to taking it
-    // from the global scope.
-    try {
-        EventEmitter = require('events').EventEmitter;
-    } catch (error) {
-        EventEmitter = global.EventEmitter;
-    }
-
-    // `extendProps` is a method to copy property definitions from a `from`
-    // object to a `onto` object. It uses Object.getOwnPropertyDescriptor, which
-    // means it can also copy getter and setter functions (rather than copying
-    // their values). Also, it uses Object.getOwnPropertyNames meaning it can
-    // get non-enumerable properties and copy those over too.
-    function extendProps(onto, from) {
-        var props = Object.getOwnPropertyNames(from),
-            replace,
-            i;
-        for (i = 0; i < props.length; ++i) {
-            replace = getPropDesc(onto, props[i]);
-            if (!replace || replace.writable && replace.configurable) {
-                prop(onto, props[i], getPropDesc(from, props[i]));
-            }
-        }
-    }
-
-    function extend(parent, protoProps, staticProps) {
+    function extend(name, parent, prototypeProperties, staticProperties) {
         var child;
-        // If protoProps has a `constructor` function then this should be used
-        // as the basis of the child class, but if it doesn't then a use a
-        // default function (`subClass`) which simply calls `.super`. In most
-        // cases you will want to provide a custom constructor.
-        if (protoProps && protoProps.hasOwnProperty('constructor')) {
-            child = protoProps.constructor;
+        var classDefinition;
+
+        if (typeof parent !== 'function' && parent !== null) {
+            classDefinition = Object.prototype.toString.call(parent);
+            throw new TypeError('Class extends value ' +
+                classDefinition + ' is not a function or null');
+        }
+
+        if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
+            child = prototypeProperties.constructor;
+            if (child.name !== name) {
+                throw new Error('Constructor name mismatch: ' + child.name + ', ' + name);
+            }
         } else {
-            child = function subClass() {
-                return child.super.apply(this, arguments);
-            };
+            child = construct(name, Boolean(parent));
         }
-        // Add ".super" static to child. This references the parent class, which
-        // allows you to call the super class functions inside the child class
-        // functions
-        prop(child, 'super', { value: parent });
-        // Extend all static props from the parent class, onto the child, and
-        // from the `staticProps` object. `staticProps` comes last so you can
-        // override parent class static properties.
-        extendProps(child, parent);
-        if (staticProps) {
-            extendProps(child, staticProps);
+
+        if (staticProperties) {
+            assignProperties(child, staticProperties);
         }
-        // Object.create will create an `instanceof` reference to the parent,
-        // meaning `child instanceof parent` works. It takes an optional set of
-        // values. The constructor is composed back into the `child.prototype`
-        // here because if it was not supplied in `protoProps` it will not be
-        // available in the prototype (up until now)
-        child.prototype = Object.create(parent.prototype, {
-            constructor: {
-                value: child,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            },
-        });
-        // Finally extend all `protoProps` onto the child.
-        if (protoProps) {
-            extendProps(child.prototype, protoProps);
+
+        if (parent) {
+            assignProperties(child, parent);
+            child.prototype = Object.create(parent.prototype, {
+                constructor: {
+                    value: child,
+                    enumerable: false,
+                    writable: true,
+                    configurable: true
+                },
+            });
         }
+
+        if (prototypeProperties) {
+            assignProperties(child.prototype, prototypeProperties, function (name, property) {
+                if (hasFunction(property) === false) {
+                    throw new TypeError('Unexpected property value for `' +
+                        name + '`. Only function, get, or set allowed');
+                }
+            });
+        }
+
         return child;
     }
 
-    KayClass = extend(EventEmitter, {
-        /*
-         * KayClass
-         *
-         * Public: The KayClass constructor. Does nothing by itself really,
-         *         but use the static .extend() method to extend it to your
-         *         hearts content.
-         *
-         * Examples
-         *
-         *     var Class = require('kayclass');
-         *     AThing = Class.extend({
-         *         someProtoProp: 1,
-         *         anotherProtoProp: 'hi',
-         *         someProtoMethod: function () { }
-         *         anotherProtoMethod: function () { }
-         *
-         *     });
-         *     AnotherThing = AThing.extend({
-         *         constructor: function () {},
-         *         someProtoMethod: function () {
-         *             AnotherThing.super.someProtoMethod.call(this);
-         *         }
-         *     }, {
-         *         staticProperty: true
-         *     });
-         *     assert(AnotherThing instanceof AThing); // true
-         *     assert(AThing instanceof Class); // true
-         *     assert(AThing.prototype.someProtoMethod !==
-         *         AnotherThing.prototype.someProtoMethod); // true
-         *
-         */
-        constructor: function KayClass() {
-            KayClass.super.call(this);
-        },
-        off: function off(name, callback) {
-            if (callback === undefined) {
-                return this.removeAllListeners(name);
-            } else {
-                return this.removeListener(name, callback);
+    function hasFunction(property) {
+        var hasFunctionValue = typeof property.value === 'function';
+        var hasSetterFunction = typeof property.set === 'function';
+        var hasGetterFunction = typeof property.get === 'function';
+
+        return hasFunctionValue || hasSetterFunction || hasGetterFunction;
+    }
+
+    function assignProperties(target, source, callback) {
+        var sourceProperties = Object.getOwnPropertyNames(source);
+        var targetPropertyDescriptor;
+        var sourcePropertyDescriptor;
+
+        sourceProperties.forEach(function (sourcePropertyName) {
+
+            targetPropertyDescriptor = Object
+                .getOwnPropertyDescriptor(target, sourcePropertyName);
+
+            if (!targetPropertyDescriptor ||
+                targetPropertyDescriptor.writable &&
+                targetPropertyDescriptor.configurable) {
+
+                sourcePropertyDescriptor = Object
+                    .getOwnPropertyDescriptor(source, sourcePropertyName);
+
+                if (typeof callback === 'function') {
+                    callback(sourcePropertyName, sourcePropertyDescriptor);
+                }
+
+                sourcePropertyDescriptor.enumerable = false;
+                Object.defineProperty(target, sourcePropertyName, sourcePropertyDescriptor);
             }
+        });
+    }
+
+    function construct(name, callsSuper) {
+        return new Function('Class', 'return function ' + name + '() { \n' +
+         (callsSuper ? '    Class.super(this).constructor.apply(this, arguments);\n' : '') +
+        '}')(Class);
+    }
+
+    function Class(name, prototypeProperties, staticProperties) {
+        if (prototypeProperties) {
+            return extend(name, null, prototypeProperties, staticProperties);
+        } else {
+            return { extends: extend.bind(this, name) };
         }
-    });
-    // Node.JS EventEmitter has some static properties that KayClass shouldn't
-    delete KayClass.EventEmitter;
-    delete KayClass.listenerCount;
+    }
 
-    // The `.extend` function is a non-enumerable static property on KayClass
-    // which is the crux of the Class system. `.extend` always results in a new
-    // child class, which is a parent of the class it is being called from.
-    prop(KayClass, 'extend', {
-        configurable: true,
-        writable: true,
-        /*
-         * KayClass.extend
-         *
-         * Public: Creates a new Class which inherits from `this`, adding
-         *         the properties from `protoProps` to the prototype, and the
-         *         properties from `staticProps` to the constructor as static
-         *         methods
-         *
-         * protoProps  - An Object of properties to add to the prototype
-         * staticProps - An Object of properties to add to the constructor
-         *
-         * Examples
-         *
-         *     Person = KayClass.extend({ name: 'Bob' });
-         *     (new Person).name // => 'Bob'
-         *     OtherPerson = Person.extend({ name: 'Sue', age: 21 });
-         *     (new OtherPerson).name // => 'Sue'
-         *     (new OtherPerson).age // => '21'
-         *
-         * Returns a new Class.
-         */
-        value: function KayClassExtend(protoProps, staticProps) {
-            return extend(this, protoProps, staticProps);
-        },
-    });
+    Class.super = function (instance) {
+        if (typeof instance === 'function') {
+            throw new TypeError('Class.super must be called with an instance');
+        }
+        return Object.getPrototypeOf(Object.getPrototypeOf(instance));
+    };
 
-    // Exporting
-    // ---------
-
-    // Export out KayClass into a module.exports module (for Node)
-    // or a property on the window object (for Browsers)
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = KayClass;
+        module.exports = Class;
     } else {
-        global.KayClass = KayClass;
+        (typeof window !== 'undefined' ? window : global).Class = Class;
     }
 
 })();

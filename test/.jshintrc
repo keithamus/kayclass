@@ -3,9 +3,10 @@
         "window"    : true,
         "require"   : true,
         "describe"  : true,
-        "sandbox"   : true,
         "beforeEach": true,
-        "it"        : true
+        "afterEach" : true,
+        "it"        : true,
+        "Class"     : true
     },
 
     "bitwise"       : true,
