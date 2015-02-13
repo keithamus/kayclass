@@ -1,86 +1,97 @@
 
 # KayClass
 
-> Copyright © 2013 Kay Framework Team
+> Copyright © Kay Framework Team
 > KayClass may be freely distributed under the MIT license.
 > For all details and documentation:
-> http://github.com/kayframework/kayClass
+> http://github.com/kay-framework/kayclass
 
-KayClass is a simple Class implementation inspired by Backbone, but using
-ES5 features. This means it copies property values such as enumerability and
-writability across classes. It also has proper prototypal inheritence using
-Object.create.
+KayClass is a simple Class implementation inspired by and built to mimic
+the ES6 class definition. It supports getter/setter prototype properties and
+static properties are included in much the same way as with a Backbone.JS
+class.
 
-When used in Node.JS it will extend from Node's EventEmitter, allowing you to
-have events baked into every class you create. When in the browser it uses
-a port of Node's EventEmitter, giving you the same flexibility on the
-frontend, as in the backend.
+Prototype and static properties are inherited from the parent class, as well
+as property values such as enumerability and writability.
 
-It is more comprehensive than a simple `util.inherits()` in Node.JS, as it
-allows you to cleanly express additional prototype & static properties, and
-also inherits static properties from the parent class. You also get a `super`
-static property on your class, which references the parent, allowing you to
-programatically call the parent methods without referincing it directly.
+Named classes can be extended, and named classes with a prototype
+argument return the default constructor or the custom constructor - if
+provided - which references the parent via Class.super.
+
 
 ### Usage
 
-Note:
-When running in Node.JS, KayClass extends from
-[Node.JS' Eventemitter](http://nodejs.org/api/events.html), when in the
-browser, it has a functionality identical browser port of EventEmitter, see
-[eventemitter-browser.js](./eventemitter-browser.js).
+Class
 
-
-
-
-KayClass
-
-Public: The KayClass constructor. Does nothing by itself really,
-        but use the static .extend() method to extend it to your
-        hearts content.
+Public: When a Class constructor is invoked with a name, proptotype and optional
+        static properties, it returns a Constructor with the static properties,
+        whose prototype is a composite of the prototype properties argument and
+        any prototype properties of the parent.
 
 Examples
 
-    var Class = require('kayclass');
-    AThing = Class.extend({
-        someProtoProp: 1,
-        anotherProtoProp: 'hi',
-        someProtoMethod: function () { }
-        anotherProtoMethod: function () { }
+```js
+var Class = require('kayclass');
 
-    });
-    AnotherThing = AThing.extend({
-        constructor: function () {},
-        someProtoMethod: function () {
-            AnotherThing.super.someProtoMethod.call(this);
+var MyClass = Class('MyClass', {
+        protoFn: function () {},
+        get thing() {},
+        set thing(athing) {
+            this.athing = thing;
         }
     }, {
-        staticProperty: true
+        staticFn: function () {}
     });
-    assert(AnotherThing instanceof AThing); // true
-    assert(AThing instanceof Class); // true
-    assert(AThing.prototype.someProtoMethod !==
-        AnotherThing.prototype.someProtoMethod); // true
+
+var myClassInstance = new MyClass();
+
+// inheritance
+assert(myClassInstance instanceof MyClass); // true
+assert(myClassInstance instanceof Class); // false
+assert(MyClass.prototype.protoFn === myClassInstance.protoFn); // true
+```
 
 
+Class.extends
 
-KayClass.extend
-
-Public: Creates a new Class which inherits from `this`, adding
-        the properties from `protoProps` to the prototype, and the
-        properties from `staticProps` to the constructor as static
-        methods
-
-protoProps  - An Object of properties to add to the prototype
-staticProps - An Object of properties to add to the constructor
+Public: When given only a name argument, Class returns an object with an extends function.
+        The extends function takes another class, a prototype properties object, and an optional
+        static properties object.
 
 Examples
 
-    Person = KayClass.extend({ name: 'Bob' });
-    (new Person).name // => 'Bob'
-    OtherPerson = Person.extend({ name: 'Sue', age: 21 });
-    (new OtherPerson).name // => 'Sue'
-    (new OtherPerson).age // => '21'
+```js
+var AnotherClass = Class('AnotherClass', {
+        protoFn: function fn1() {},
+        anotherProtoFn: function () {}
+        get thing() {},
+        set thing(athing) {
+            this.athing = thing;
+        }
+    }, {
+        staticFn: function () {}
+    });
 
-Returns a new Class.
+var MyClass = Class('MyClass').extends(AnotherClass, {
+    protoFn: fn2() {},
+    myProtoFn: function () {}
+});
 
+var myClassInstance = new MyClass();
+
+// inheritance
+assert(myClassInstance instanceof MyClass); // true
+assert(myClassInstance instanceof AnotherClass); // true
+assert(myClassInstance instanceof Class); // false
+
+// child properties override parent properties of the same name
+assert(myClassInstance.protoFn === '[Function: fn2]'); // true
+// parent prototype properties are copied to the child prototype
+assert(myClassInstance.anotherProtoFn === AnotherClass.prototype.anotherProtoFn); // true
+// parent static properties are copied to the child
+assert(MyClass.staticFn === AnotherClass.staticFn); // true
+
+
+// Constructor/instance has a reference to its immediate parent via Class.super()
+assert(Class.super(myClassInstance) === AnotherClass.prototype); // true
+```

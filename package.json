@@ -1,6 +1,6 @@
 {
     "name": "kayclass",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "A Class implementation for JavaScript",
     "homepage": "http://github.com/kay-framework/kayclass",
     "main": "index.js",
@@ -49,10 +49,10 @@
     "author": "Kay Framework Team",
     "license": "MIT",
     "devDependencies": {
-        "chai": "~1.8.0",
-        "sinon": "1.7.3",
-        "sinomocha": "~0.1.0",
-        "sinon-chai": "~2.4.0",
-        "mocha": "~1.14.0"
+        "chai": "^1.9.2",
+        "sinon": "^1.12.2",
+        "sinomocha": "^0.2.3",
+        "sinon-chai": "^2.6.0",
+        "mocha": "^1.18.0"
     }
 }

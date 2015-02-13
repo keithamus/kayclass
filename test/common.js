@@ -6,4 +6,5 @@
         global.should = require('chai').use(require('sinon-chai')).should();
         require('sinomocha')();
     }
+
 })(typeof global === 'undefined' ? window : global);
