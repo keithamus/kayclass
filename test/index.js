@@ -192,20 +192,20 @@ describe('Class', function () {
         it('calls super with the instance when instantiated', function () {
 
             Class.super
-                .should.have.been.calledWith(instance);
+                .should.have.been.calledWith(ChildClass);
 
         });
 
         it('calls the default constructor method when instantiated', function () {
 
-            Class.super(instance).constructor
+            Class.super(ChildClass).constructor
                 .should.have.been.called;
 
         });
 
         it('maps arguments to its parent constructor', function () {
 
-            Class.super(instance).constructor
+            Class.super(ChildClass).constructor
                 .should.have.been.calledWith(1, 2);
 
         });
@@ -226,7 +226,7 @@ describe('Class', function () {
 
             ChildClass = Class('ChildClass').extends(ParentClass, {
                 constructor: function ChildClass() {
-                    Class.super(this).constructor();
+                    Class.super(ChildClass).constructor();
                 },
                 aFn: function () {}
             }, {
@@ -268,13 +268,13 @@ describe('Class', function () {
         it('calls super with the instance when instantiated', function () {
 
             Class.super
-                .should.have.been.calledWith(instance);
+                .should.have.been.calledWith(ChildClass);
 
         });
 
         it('calls the custom constructor method when instantiated', function () {
 
-            Class.super(instance).constructor
+            Class.super(ChildClass).constructor
                 .should.have.been.called;
 
         });
@@ -358,7 +358,7 @@ describe('Class', function () {
 
         it('creates a reference to the parents\' prototype via Class.super', function () {
 
-            Class.super(instance)
+            Class.super(ExtendedChild)
                 .should.equal(ExtendableClass.prototype);
 
         });
@@ -459,7 +459,7 @@ describe('Class', function () {
 
         it('creates a reference to the class arguments\'s prototype via Class.super', function () {
 
-            Class.super(instance)
+            Class.super(ExtendedChild)
                 .should.equal(ExtendableClass.prototype);
 
         });
@@ -469,7 +469,8 @@ describe('Class', function () {
     describe('.super()', function () {
 
         var ExtendableClass,
-            ExtendedChild;
+            ExtendedChild,
+            ExtendedExtendedChild;
 
         beforeEach(function () {
 
@@ -485,23 +486,35 @@ describe('Class', function () {
                 childStaticFunc: function () {}
             });
 
+            ExtendedExtendedChild = Class('ExtendedExtendedChild').extends(ExtendedChild, {
+                cFn: function cFn() {}
+            }, {
+                childStaticFunc: function () {}
+            });
+
         });
 
-        it('must be called with an instance of a Class', function () {
+        it('must be called with an Class constructor', function () {
 
-            var instance = new ExtendedChild();
-
-            Class.super(instance).constructor
+            Class.super(ExtendedChild).constructor
                 .should.equal(ExtendableClass);
 
+            Class.super(ExtendedExtendedChild).constructor
+                .should.equal(ExtendedChild);
+
         });
 
-        it('cannot be called with a Class', function () {
+        it('cannot be called with a Class instance', function () {
 
             (function () {
-                Class.super(ExtendedChild);
-            }).should.throw(TypeError, 'Class.super must be called with an instance');
+                Class.super(new ExtendedChild);
+            }).should.throw(TypeError, 'Class.super must be called with a constructor');
 
+        });
+
+        it('can be called multiple times down the chain', function () {
+            var instance = new ExtendedExtendedChild();
+            instance.should.be.instanceof(ExtendableClass);
         });
 
     });
