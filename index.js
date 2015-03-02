@@ -95,7 +95,7 @@
 
     function construct(name, callsSuper) {
         return new Function('Class', 'return function ' + name + '() { \n' +
-         (callsSuper ? '    Class.super(this).constructor.apply(this, arguments);\n' : '') +
+         (callsSuper ? '    Class.super(' + name + ').constructor.apply(this, arguments);\n' : '') +
         '}')(Class);
     }
 
@@ -107,11 +107,11 @@
         }
     }
 
-    Class.super = function (instance) {
-        if (typeof instance === 'function') {
-            throw new TypeError('Class.super must be called with an instance');
+    Class.super = function (constructor) {
+        if (typeof constructor !== 'function' || !constructor.prototype) {
+            throw new TypeError('Class.super must be called with a constructor');
         }
-        return Object.getPrototypeOf(Object.getPrototypeOf(instance));
+        return Object.getPrototypeOf(constructor.prototype);
     };
 
     if (typeof module !== 'undefined' && module.exports) {
