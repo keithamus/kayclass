@@ -14,8 +14,15 @@
         "saucetest": "karma start karma.sauce.conf.js",
         "coveralls": "cat ./coverage/lcov.info | coveralls",
         "test": "npm run unittest && npm run saucetest",
-        "test-travis": "npm test && npm run coveralls"
+        "test-travis": "npm test && npm run coveralls",
+        "build": "browserify -ds Class index.js -p [minifyify --compressPath .. --map kayclass.map.json --output kayclass.map.json] > kayclass.js",
+        "prepublish": "npm run build"
     },
+    "files": [
+        "kayclass.js",
+        "kayclass.map.json",
+        "index.js"
+    ],
     "keywords": [
         "class",
         "prototype",
@@ -36,6 +43,8 @@
         "karma-sinon": "^1.0.4",
         "karma-sauce-launcher": "^0.2.10",
         "karma-chrome-launcher": "^0.1.7",
+        "browserify": "^9.0.3",
+        "minifyify": "^6.3.1",
         "chai": "^1.9.2",
         "istanbul": "^0.3.7",
         "coveralls": "^2.11.2",

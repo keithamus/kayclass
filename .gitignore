@@ -153,3 +153,6 @@ tmtags
 *.un~
 Session.vim
 .netrwhist
+
+kayclass.js
+kayclass.map.json
