@@ -64,6 +64,7 @@ $RECYCLE.BIN/
 #########################################
 # Node
 lib-cov
+coverage
 node_modules
 npm-debug.log
 # Misc
