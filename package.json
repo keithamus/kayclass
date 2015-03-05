@@ -11,7 +11,8 @@
     "scripts": {
         "unittest": "NODE_ENV=test istanbul cover _mocha --report lcovonly",
         "coveralls": "cat ./coverage/lcov.info | coveralls",
-        "test": "npm run unittest && npm run coveralls"
+        "test": "npm run unittest && npm run coveralls",
+        "test-travis": "npm test"
     },
     "keywords": [
         "class",

@@ -1,0 +1,30 @@
+language: node_js
+node_js:
+  - 0.12
+  - 0.10
+  - iojs
+
+script:
+  - npm run test-travis
+
+env:
+  global:
+    # COVERALLS_REPO_TOKEN=
+    - secure: "YGnGbtAS5QY0/VgQaJHLKDcOIcRfHw97F8tF6y/Aipw0qYr/gsFq44Yysr4Y/3LPrdG4/T+U5EAGSyGihR4vtrp/Un+PDvdF8AfG9fCPrXfpafGo/ppy5mZCsns1r630STNNjbcOaj6pirizpQ5ZJvFoX+heIDx4sEa2k4ppf4U="
+    # SAUCELABS_USERNAME=
+    - secure: "Frn6md9E644u42FhZ6oH9CiVr/NTSJTwImXBnMtespe67Ju1gMtJRT19iDpo/ATtriT91TEbbmEzIiDUviTTPN2vVQjpXLAufbOkXmIr3VCQFUQ+t6OBD0scHYYSuy5P6qwymMPwPfdKy1A/aBWX2Yed6yXhE94lctDpVtkNnd8="
+    # SAUCELABS_ACCESSKEY=
+    - secure: "F0IOD42u9QXOBpX4Sb4upq1HZeyurzUmhK9Zu6Hj7sYwTO248BpsuK8odzk+NEaNFU6GrQSNN9dnfKX8TI2+KqHDrO7bB+ZrML5/cqs0+/B2PsnURk0rKDuY0JHQ/T8wdRrYCHm8xF3oxmlfwIhXlsEjr8SZ4YS4sjzZVcdjFks="
+    - SAUCE_CONNECT_READY_FILE=/tmp/sauce-connect-ready
+    - LOGS_DIR=/tmp/chai-build/logs
+
+deploy:
+  provider: npm
+  email:
+    secure: Ws/uq3Lq7ar+95yMDBhQDHcrNpJiFmv1aPqyN6uk4OrUqcZR+VE0N5XiAZhp+YnRf0rw4qtl8EtfxTTWcqie3sY8sJjg8xuOm17BlkbAO1R62ckZh40Y3/WYXaRQsRBoXAkbQuJSDBc3TMg/+2xeZPvX+R+cjtNTAljs2fZjn9M=
+  api_key:
+    secure: EzHK1Tk/9K/fQh3NoMJ6M7ieaZDheA4Z+jto+EiK3K/gQXTDCtdv4GKMyC2gBeEhjE5L2pVftckr4lBDmKSfVoGID6SMmfG5YAuw0Q0ZmKShp1CQZ27Ej06IvFUBiEx8CQtHPk2hWJfTTSstDf5ZRhnEV+2hj6LqrCy3MhINCEY=
+  on:
+    tags: true
+    repo: kay-framework/kayclass
+    all_branches: true
