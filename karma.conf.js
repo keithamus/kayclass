@@ -12,7 +12,7 @@ module.exports = function(config) {
         files: [
           'node_modules/sinomocha/index.js',
           'node_modules/sinon-chai/lib/sinon-chai.js',
-          'index.js',
+          'kayclass.js',
           'test/*.js'
         ],
 
