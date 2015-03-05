@@ -30,10 +30,6 @@
             child = construct(name, Boolean(parent));
         }
 
-        if (staticProperties) {
-            assignProperties(child, staticProperties);
-        }
-
         if (parent) {
             assignProperties(child, parent);
             child.prototype = Object.create(parent.prototype, {
@@ -46,16 +42,22 @@
             });
         }
 
+        if (staticProperties) {
+            assignProperties(child, staticProperties, ensureFunctionAssignment);
+        }
+
         if (prototypeProperties) {
-            assignProperties(child.prototype, prototypeProperties, function (name, property) {
-                if (hasFunction(property) === false) {
-                    throw new TypeError('Unexpected property value for `' +
-                        name + '`. Only function, get, or set allowed');
-                }
-            });
+            assignProperties(child.prototype, prototypeProperties, ensureFunctionAssignment);
         }
 
         return child;
+    }
+
+    function ensureFunctionAssignment(name, property) {
+        if (hasFunction(property) === false) {
+            throw new TypeError('Unexpected property value for `' +
+                name + '`. Only function, get, or set allowed');
+        }
     }
 
     function hasFunction(property) {

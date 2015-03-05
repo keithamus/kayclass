@@ -32,7 +32,7 @@ describe('Class', function () {
                 fn2: function () {}
             }, {
                 staticFn1: function () {},
-                staticProp: true
+                get staticGet() { return true; }
             });
         });
 
@@ -102,6 +102,45 @@ describe('Class', function () {
 
         });
 
+        it('only allows functions, setters, and getters as statics', function () {
+
+            (function () {
+                Class('MyClass', {}, {
+                    set name(name) {
+                        this._name = name;
+                    },
+                    prop1: 1,
+                    get name() {
+                        return this._name;
+                    },
+                    fnValue: function () {}
+                });
+            }).should
+                .throw('Unexpected property value for `prop1`. Only function, get, or set allowed');
+
+            (function () {
+                Class('MyClass', {}, {
+                    set name(name) {
+                        this._name = name;
+                    },
+                    get name() {
+                        return this._name;
+                    }
+                });
+            }).should
+                .not.throw();
+
+            (function () {
+                Class('MyClass', {}, {
+                    get name() {
+                        return this._name;
+                    }
+                });
+            }).should
+                .not.throw();
+
+        });
+
         it('makes all prototype methods non-enumerable', function () {
 
             var myClass = new (Class('MyClass', {
@@ -119,8 +158,25 @@ describe('Class', function () {
             Constructor.staticFn1
                 .should.be.a('function');
 
-            Constructor.staticProp
+            Constructor.staticGet
                 .should.be.a('boolean');
+
+        });
+
+        it('static methods can be overriden', function () {
+
+            Constructor.staticFn1
+                .should.be.a('function');
+
+            var staticFn1 = function () {};
+
+            var Child = Class('Child').extends(Constructor, {}, {
+                staticFn1: staticFn1,
+            });
+
+            Child.staticFn1
+                .should.equal(staticFn1)
+                .and.not.equal(Constructor.staticFn1);
 
         });
 
@@ -155,7 +211,7 @@ describe('Class', function () {
                 aFn: function () {}
             }, {
                 staticFn: function () {},
-                staticProp: true,
+                get staticGet() { return true; }
             });
 
             this.spy(Class, 'super');
@@ -184,7 +240,7 @@ describe('Class', function () {
             ChildClass.staticFn
                 .should.be.a('function');
 
-            ChildClass.staticProp
+            ChildClass.staticGet
                 .should.be.a('boolean');
 
         });
@@ -231,7 +287,7 @@ describe('Class', function () {
                 aFn: function () {}
             }, {
                 staticFn: function () {},
-                staticProp: true,
+                get staticGet() { return true; }
             });
 
             this.spy(Class, 'super');
@@ -260,7 +316,7 @@ describe('Class', function () {
             ChildClass.staticFn
                 .should.be.a('function');
 
-            ChildClass.staticProp
+            ChildClass.staticGet
                 .should.be.a('boolean');
 
         });
