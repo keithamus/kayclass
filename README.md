@@ -1,3 +1,12 @@
+[![kay-framework:core](https://img.shields.io/badge/kay--framework-core-blue.svg?style=flat-square)](https://github.com/kay-framework)
+[![license:mit](https://img.shields.io/badge/license-mit-green.svg?style=flat-square)](http://kayframework.mit-license.org/)<br>
+[![tag:?](https://img.shields.io/github/tag/kay-framework/kayclass.svg?style=flat-square)](https://github.com/kay-framework/kayclass/releases)
+[![build:?](https://img.shields.io/travis/kay-framework/kayclass/master.svg?style=flat-square)](https://travis-ci.org/kay-framework/kayclass)
+[![coverage:?](https://img.shields.io/coveralls/kay-framework/kayclass/master.svg?style=flat-square)](https://coveralls.io/r/kay-framework/kayclass)<br>
+[![npm:](https://img.shields.io/npm/v/kayclass.svg?style=flat-square)](https://www.npmjs.com/packages/kayclass)
+[![dependencies:?](https://img.shields.io/npm/dm/kayclass.svg?style=flat-square)](https://www.npmjs.com/packages/kayclass)
+[![devDependencies:?](https://img.shields.io/david/kay-framework/kayclass.svg?style=flat-square)](https://david-dm.org/kay-framework/kayclass)
+
 
 # KayClass
 
