@@ -1,6 +1,6 @@
 {
     "name": "kayclass",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "A Class implementation for JavaScript",
     "homepage": "http://github.com/kay-framework/kayclass",
     "main": "index.js",

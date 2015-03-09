@@ -1,3 +1,12 @@
+## v2.1.1
+
+### Changes
+
+ - [#30](https://github.com/kay-framework/kayclass/pull/30):
+   Fix bug where the default constructor would not return the Class.super call
+   (Fix [#29](https://github.com/kay-framework/kayclass/issues/29))
+   ([@keithamus](https://github.com/keithamus))
+
 ## v2.1.0
 
 ### Changes
