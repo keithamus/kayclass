@@ -95,7 +95,7 @@ function assignProperties(target, source, callback) {
 
 function construct(name, callsSuper) {
     return new Function('Class', 'return function ' + name + '() { \n' +
-     (callsSuper ? '    Class.super(' + name + ').constructor.apply(this, arguments);\n' : '') +
+     (callsSuper ? '    return Class.super(' + name + ').constructor.apply(this, arguments);\n' : '') +
     '}')(Class);
 }
 

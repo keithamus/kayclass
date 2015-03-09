@@ -252,6 +252,20 @@ describe('Class', function () {
 
         });
 
+        it('returns the value of the super call', function () {
+            var val = {};
+            var Parent = Class('Parent', {
+                constructor: function Parent() {
+                    return val;
+                },
+            });
+            var Child = Class('Child').extends(Parent);
+
+            new Child()
+                .should.equal(val);
+
+        });
+
         it('calls the default constructor method when instantiated', function () {
 
             Class.super(ChildClass).constructor
