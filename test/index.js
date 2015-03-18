@@ -29,7 +29,8 @@ describe('Class', function () {
         beforeEach(function () {
             Constructor = Class('MyClass', {
                 fn1: function () {},
-                fn2: function () {}
+                fn2: function () {},
+                get getter() { return true },
             }, {
                 staticFn1: function () {},
                 get staticGet() { return true; }
@@ -177,6 +178,80 @@ describe('Class', function () {
             Child.staticFn1
                 .should.equal(staticFn1)
                 .and.not.equal(Constructor.staticFn1);
+
+        });
+
+        it('allows getters/setters to override methods', function () {
+
+            Constructor.prototype.fn1
+                .should.be.a('function');
+
+            var value = {};
+
+            var Child = Class('Child').extends(Constructor, {
+                get fn1() {
+                    return value;
+                }
+            });
+
+            var child = new Child();
+
+            child.fn1
+                .should.equal(value)
+                .and.not.equal(Constructor.prototype.fn1);
+
+        });
+
+        it('allows getters/setters to override getters/setters', function () {
+
+            var value = {};
+
+            var Child = Class('Child').extends(Constructor, {
+                get getter() {
+                    return value;
+                }
+            });
+
+            var child = new Child();
+
+            child.getter
+                .should.equal(value)
+                .and.not.equal(Constructor.prototype.getter);
+
+        });
+
+        it('allows static getters/setters to override methods', function () {
+
+            Constructor.staticFn1
+                .should.be.a('function');
+
+            var value = {};
+
+            var Child = Class('Child').extends(Constructor, {}, {
+                get staticFn1() {
+                    return value;
+                }
+            });
+
+            Child.staticFn1
+                .should.equal(value)
+                .and.not.equal(Constructor.staticFn1);
+
+        });
+
+        it('allows static getters/setters to override getters/setters', function () {
+
+            var value = {};
+
+            var Child = Class('Child').extends(Constructor, {}, {
+                get staticGet() {
+                    return value;
+                }
+            });
+
+            Child.staticGet
+                .should.equal(value)
+                .and.not.equal(Constructor.staticGet);
 
         });
 

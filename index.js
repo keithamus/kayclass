@@ -40,6 +40,7 @@ function extend(name, parent, prototypeProperties, staticProperties) {
         });
     }
 
+
     if (staticProperties) {
         assignProperties(child, staticProperties, ensureFunctionAssignment);
     }
@@ -76,12 +77,11 @@ function assignProperties(target, source, callback) {
         targetPropertyDescriptor = Object
             .getOwnPropertyDescriptor(target, sourcePropertyName);
 
-        if (!targetPropertyDescriptor ||
-            targetPropertyDescriptor.writable &&
-            targetPropertyDescriptor.configurable) {
+        if (!targetPropertyDescriptor || targetPropertyDescriptor.configurable) {
 
             sourcePropertyDescriptor = Object
                 .getOwnPropertyDescriptor(source, sourcePropertyName);
+
 
             if (typeof callback === 'function') {
                 callback(sourcePropertyName, sourcePropertyDescriptor);
