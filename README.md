@@ -1,3 +1,6 @@
+> # No Longer Actively Maintained
+> If someone would like to take over maintainence, feel free to get in touch ([@keithamus on twitter](https://twitter.com/keithamus)). I'll happily transfer this over.
+
 [![kay-framework:core](https://img.shields.io/badge/kay--framework-core-blue.svg?style=flat-square)](https://github.com/kay-framework)
 [![license:mit](https://img.shields.io/badge/license-mit-green.svg?style=flat-square)](http://kayframework.mit-license.org/)<br>
 [![tag:?](https://img.shields.io/github/tag/kay-framework/kayclass.svg?style=flat-square)](https://github.com/kay-framework/kayclass/releases)
